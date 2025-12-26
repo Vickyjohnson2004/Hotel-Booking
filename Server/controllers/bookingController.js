@@ -152,3 +152,14 @@ export const updateBookingStatus = async (req, res) => {
     res.status(500).json({ message: "Failed to update booking" });
   }
 };
+
+// // stripe payment
+// export const stripePayment = async (req, res) => {
+//   try {
+//     const { bookingId } = req.body;
+//     const booking = await Booking.findById(bookingId);
+//     const roomData = await Room.findById(booking.room).populate("hotel");
+//     const totalPrice = booking.totalPrice;
+//     const { origin } = req.headers;
+//   } catch (error) {}
+// };

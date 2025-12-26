@@ -1,4 +1,5 @@
 import Hotel from "../models/Hotel.js";
+import cloudinary from "../configs/cloudinary.js";
 
 /* ================= CREATE HOTEL ================= */
 export const createHotel = async (req, res) => {
@@ -12,22 +13,33 @@ export const createHotel = async (req, res) => {
         .json({ message: "Name, city, and address are required" });
     }
 
-    // 2️⃣ Handle optional fields
+    // 2️⃣ Parse amenities safely
     const hotelAmenities = amenities ? JSON.parse(amenities) : [];
-    const hotelImages = req.files
-      ? req.files.map((f) => `/uploads/hotels/${f.filename}`)
-      : [];
 
-    // Require at least one hotel image
-    if (!hotelImages || hotelImages.length === 0) {
+    // 3️⃣ Validate images
+    if (!req.files || req.files.length === 0) {
       return res
         .status(400)
         .json({ message: "At least one hotel image is required" });
     }
 
-    // 3️⃣ Create hotel
+    // 4️⃣ Upload images to Cloudinary
+    const hotelImages = [];
+
+    for (const file of req.files) {
+      const uploadResult = await cloudinary.uploader.upload(
+        `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+        {
+          folder: "hotels",
+        }
+      );
+
+      hotelImages.push(uploadResult.secure_url);
+    }
+
+    // 5️⃣ Create hotel
     const hotel = await Hotel.create({
-      owner: req.user._id, // make sure Hotel model has owner: String if _id is UUID
+      owner: req.user._id,
       name,
       city,
       address,
@@ -43,7 +55,7 @@ export const createHotel = async (req, res) => {
   }
 };
 
-/* ================= GET ADMIN HOTELS ================= */
+/* ================= GET OWNER HOTELS ================= */
 export const getOwnerHotels = async (req, res) => {
   try {
     const hotels = await Hotel.find({ owner: req.user._id });

@@ -25,6 +25,7 @@
     "mongoose": "^8.19.4",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.12",
+    "stripe": "^20.1.0",
     "svix": "^1.81.0",
     "validator": "^13.15.26"
   },
