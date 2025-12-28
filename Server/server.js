@@ -1,6 +1,9 @@
+// server.js (top)
+import dotenv from "dotenv";
+dotenv.config({ path: "./.env" }); // MUST be first
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import fs from "fs";
 import cookieParser from "cookie-parser";
 import connectDB from "./configs/db.js";

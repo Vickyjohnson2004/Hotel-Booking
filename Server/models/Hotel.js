@@ -1,9 +1,10 @@
+// models/Hotel.js
 import mongoose from "mongoose";
 
 const hotelSchema = new mongoose.Schema(
   {
     owner: {
-      type: String, // UUID string from your auth system
+      type: String,
       ref: "User",
       required: true,
     },
@@ -17,4 +18,4 @@ const hotelSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Hotel", hotelSchema);
+export default mongoose.models.Hotel || mongoose.model("Hotel", hotelSchema);

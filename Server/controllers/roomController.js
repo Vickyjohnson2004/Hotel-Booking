@@ -79,16 +79,21 @@ export const getRoomDetails = async (req, res) => {
     const room = await Room.findById(req.params.id).populate("hotel");
 
     if (!room) {
-      return res.status(404).json({ message: "Room not found" });
+      // Add success: false here
+      return res
+        .status(404)
+        .json({ success: false, message: "Room not found" });
     }
 
     res.json({
-      status: "success",
+      success: true, // <--- CHANGE THIS FROM status: "success"
       room,
     });
   } catch (error) {
     console.error("GET ROOM DETAILS ERROR:", error);
-    res.status(500).json({ message: "Failed to fetch room details" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch room details" });
   }
 };
 
@@ -115,23 +120,26 @@ export const checkRoomAvailability = async (req, res) => {
 
     if (!roomId || !checkIn || !checkOut) {
       return res.status(400).json({
+        success: false,
         message: "roomId, checkIn and checkOut are required",
       });
     }
 
     const overlappingBooking = await Booking.findOne({
       room: roomId,
-      status: { $ne: "cancelled" }, // any non-cancelled booking blocks availability
+      status: { $ne: "cancelled" },
       checkIn: { $lt: new Date(checkOut) },
       checkOut: { $gt: new Date(checkIn) },
     });
 
     res.json({
-      status: "success",
+      success: true, // <--- CHANGE THIS FROM status: "success"
       available: !overlappingBooking,
     });
   } catch (error) {
     console.error("CHECK AVAILABILITY ERROR:", error);
-    res.status(500).json({ message: "Failed to check room availability" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to check room availability" });
   }
 };

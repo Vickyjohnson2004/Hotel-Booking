@@ -1,7 +1,7 @@
-import fs from "fs";
-import path from "path";
 import Offer from "../models/Offer.js";
+import cloudinary from "../configs/cloudinary.js";
 
+/* ================= GET OFFERS ================= */
 export const getOffers = async (req, res) => {
   try {
     const offers = await Offer.find().sort("-createdAt");
@@ -12,26 +12,33 @@ export const getOffers = async (req, res) => {
   }
 };
 
+/* ================= CREATE OFFER ================= */
 export const createOffer = async (req, res) => {
   try {
     const { title, description, priceOff, expiryDate } = req.body;
+
     if (!title || !description) {
-      return res
-        .status(400)
-        .json({ message: "Title and description are required" });
+      return res.status(400).json({
+        message: "Title and description are required",
+      });
     }
 
-    // Require an uploaded image
     if (!req.file) {
-      return res.status(400).json({ message: "Offer image is required" });
+      return res.status(400).json({
+        message: "Offer image is required",
+      });
     }
 
-    const imagePath = `/uploads/offers/${req.file.filename}`;
+    // Upload image to Cloudinary
+    const uploadResult = await cloudinary.uploader.upload(
+      `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
+      { folder: "offers" }
+    );
 
     const offer = await Offer.create({
       title,
       description,
-      image: imagePath,
+      image: uploadResult.secure_url,
       priceOff: priceOff ? Number(priceOff) : undefined,
       expiryDate: expiryDate ? new Date(expiryDate) : undefined,
     });
@@ -43,6 +50,7 @@ export const createOffer = async (req, res) => {
   }
 };
 
+/* ================= UPDATE OFFER ================= */
 export const updateOffer = async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id);
@@ -57,19 +65,16 @@ export const updateOffer = async (req, res) => {
     if (expiryDate !== undefined)
       offer.expiryDate = expiryDate ? new Date(expiryDate) : undefined;
 
-    // If a new file uploaded, replace image and delete old
+    // Replace image if provided
     if (req.file) {
-      const newPath = `/uploads/offers/${req.file.filename}`;
-      // delete old file if present and in uploads folder
-      try {
-        if (offer.image && offer.image.startsWith("/uploads/offers/")) {
-          const oldFile = path.join(process.cwd(), offer.image);
-          if (fs.existsSync(oldFile)) fs.unlinkSync(oldFile);
-        }
-      } catch (err) {
-        console.warn("Failed to delete old offer image:", err.message || err);
-      }
-      offer.image = newPath;
+      const uploadResult = await cloudinary.uploader.upload(
+        `data:${req.file.mimetype};base64,${req.file.buffer.toString(
+          "base64"
+        )}`,
+        { folder: "offers" }
+      );
+
+      offer.image = uploadResult.secure_url;
     }
 
     await offer.save();
@@ -80,25 +85,14 @@ export const updateOffer = async (req, res) => {
   }
 };
 
+/* ================= DELETE OFFER ================= */
 export const deleteOffer = async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id);
     if (!offer) return res.status(404).json({ message: "Offer not found" });
 
-    // delete image file
-    try {
-      if (offer.image && offer.image.startsWith("/uploads/offers/")) {
-        const filePath = path.join(process.cwd(), offer.image);
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-      }
-    } catch (err) {
-      console.warn(
-        "Failed to delete offer image on removal:",
-        err.message || err
-      );
-    }
-
     await Offer.deleteOne({ _id: req.params.id });
+
     res.json({ status: "success", message: "Offer deleted" });
   } catch (error) {
     console.error("DELETE OFFER ERROR:", error);

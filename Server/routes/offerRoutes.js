@@ -11,9 +11,8 @@ import { uploadOfferImage } from "../middleware/uploadOfferImage.js";
 
 const router = express.Router();
 
-// Public list
 router.get("/", getOffers);
-// Only admins can create offers (single image upload required)
+
 router.post(
   "/",
   protect,
@@ -22,7 +21,6 @@ router.post(
   createOffer
 );
 
-// Edit offer (admin) - image optional
 router.patch(
   "/:id",
   protect,
@@ -31,7 +29,6 @@ router.patch(
   updateOffer
 );
 
-// Delete offer (admin)
 router.delete("/:id", protect, restrictTo("admin"), deleteOffer);
 
 export default router;

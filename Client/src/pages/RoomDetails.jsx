@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { assets, facilityIcons, roomCommonData } from "../assets/assets";
+import { assets, facilityIcons } from "../assets/assets";
 import StarRating from "../components/StarRating";
 import api from "../services/api";
 import toast from "react-hot-toast";
@@ -13,7 +13,6 @@ const RoomDetails = () => {
   const [mainImage, setMainImage] = useState(null);
   const [loadingRoom, setLoadingRoom] = useState(true);
 
-  // Booking form state
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(1);
@@ -24,136 +23,163 @@ const RoomDetails = () => {
       try {
         setLoadingRoom(true);
         const res = await api.get(`/rooms/${id}`);
-        setRoom(res.data.room);
-        setMainImage(getImageUrl(res.data.room.images?.[0] || null));
+
+        if (res.data.success && res.data.room) {
+          setRoom(res.data.room);
+          // FIX 1: Explicitly set the main image when data arrives
+          const firstImg = res.data.room.images?.[0];
+          setMainImage(getImageUrl(firstImg));
+        } else {
+          toast.error("Room not found");
+        }
       } catch (err) {
-        console.error(err);
+        console.error("Fetch Error:", err);
         toast.error("Failed to load room details");
       } finally {
         setLoadingRoom(false);
       }
     };
 
-    fetchRoom();
+    if (id) fetchRoom();
   }, [id]);
 
+  if (loadingRoom) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (!room) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Room details not available.</p>
+      </div>
+    );
+  }
+
   return (
-    room && (
-      <div className="py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32">
-        {/* Room Details */}
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
-          <h1 className="text-3xl md:text-4xl font-playfair">
-            {room.hotel.name}{" "}
-            <span className="font-inter text-sm">({room.roomType})</span>
-          </h1>
-          <p className="text-xs font-inter py-1.5 px-3 text-white bg-orange-500 rounded-full">
-            20% OFF
-          </p>
+    <div className="py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32">
+      {/* Title Section */}
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
+        <h1 className="text-3xl md:text-4xl font-playfair font-bold text-gray-800">
+          {room.hotel?.name || "The Grand Hotel"}
+          <span className="text-lg font-inter font-normal ml-2 text-gray-500">
+            ({room.title || "Standard Room"})
+          </span>
+        </h1>
+        <div className="bg-orange-500 text-white text-xs px-3 py-1 rounded-full font-bold">
+          20% OFF
+        </div>
+      </div>
+
+      {/* Ratings & Location */}
+      <div className="mt-3 flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <StarRating rating={4.5} />
+          <span className="text-sm text-gray-600">(200+ reviews)</span>
+        </div>
+        <div className="flex items-center gap-2 text-gray-500">
+          <img src={assets.locationIcon} className="w-4" alt="loc" />
+          <span className="text-sm">
+            {room.hotel?.address || "Location not specified"}
+          </span>
+        </div>
+      </div>
+
+      {/* FIX 2: Enhanced Image Gallery */}
+      <div className="flex flex-col lg:flex-row mt-8 gap-4">
+        {/* Large Image Container */}
+        <div className="lg:w-2/3 w-full">
+          <img
+            src={mainImage || assets.placeholderImage}
+            alt="Room View"
+            className="w-full h-[300px] md:h-[500px] rounded-2xl object-cover shadow-md border"
+          />
         </div>
 
-        {/* Room Rating */}
-        <div className="flex items-center gap-1 mt-2">
-          <StarRating />
-          <p className="ml-2">200+ reviews</p>
-        </div>
-
-        {/* Room Address */}
-        <div className="flex items-center gap-1 text-gray-500 mt-2">
-          <img src={assets.locationIcon} alt="locationIcon" />
-          <span>{room.hotel.address}</span>
-        </div>
-
-        {/* Room Images */}
-        <div className="flex flex-col lg:flex-row mt-6 gap-6">
-          <div className="lg:w-1/2 w-full">
-            <img
-              src={mainImage}
-              alt="mainImage room image"
-              className="w-full rounded-xl shadow-lg object-cover"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 lg:w-1/2 w-full">
-            {room?.images.length > 1 &&
-              room.images.map((image, index) => (
-                <img
-                  onClick={() => setMainImage(image)}
-                  key={index}
-                  src={image}
-                  alt="room image"
-                  className={`w-full rounded-xl shadow-md object-cover cursor-pointer ${
-                    mainImage === image && "outline-3 outline-orange-500"
-                  }`}
-                />
-              ))}
-          </div>
-        </div>
-
-        {/* Room Highlights */}
-        <div className="flex flex-col md:flex-row md:justify-between mt-10">
-          <div className="flex flex-col">
-            <h1 className="text-3xl md:text-4xl font-playfair">
-              Experience Luxury Like Never Before
-            </h1>
-
-            <div className="flex flex-wrap items-center mt-3 mb-6 gap-4">
-              {room.amenities.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100"
-                >
-                  <img
-                    src={facilityIcons[item]}
-                    alt={item}
-                    className="w-5 h-5"
-                  />
-                  <p className="text-xs">{item}</p>
-                </div>
-              ))}
+        {/* Thumbnails Grid */}
+        <div className="lg:w-1/3 w-full grid grid-cols-2 gap-3 h-fit">
+          {room.images?.slice(0, 4).map((img, index) => (
+            <div
+              key={index}
+              onClick={() => setMainImage(getImageUrl(img))}
+              className={`relative cursor-pointer rounded-xl overflow-hidden h-32 md:h-40 border-2 transition-all ${
+                mainImage === getImageUrl(img)
+                  ? "border-orange-500 scale-[0.98]"
+                  : "border-transparent opacity-80"
+              }`}
+            >
+              <img
+                src={getImageUrl(img)}
+                alt={`Room ${index}`}
+                className="w-full h-full object-cover"
+              />
             </div>
-          </div>
-          {/* Room Price */}
-          <p className="text-2xl font-medium">${room.price}/night</p>
+          ))}
         </div>
+      </div>
 
-        {/* CheckIn CheckOut Form */}
+      {/* Features & Price */}
+      <div className="mt-12 flex flex-col md:flex-row justify-between items-start border-b pb-10">
+        <div className="flex-1">
+          <h2 className="text-2xl font-playfair font-semibold mb-4 text-gray-800">
+            Room Highlights
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            {room.amenities?.map((item, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg text-sm text-gray-700"
+              >
+                <img
+                  src={facilityIcons[item] || assets.featureIcon}
+                  className="w-5 h-5"
+                  alt=""
+                />
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-6 md:mt-0 text-right">
+          <p className="text-3xl font-bold text-blue-600">
+            ${room.price}
+            <span className="text-sm text-gray-500 font-normal"> / night</span>
+          </p>
+          <p className="text-sm text-gray-400 mt-1">Inclusive of all taxes</p>
+        </div>
+      </div>
+
+      {/* Booking Form */}
+      <div className="mt-10">
         <form
           onSubmit={async (e) => {
             e.preventDefault();
-            if (!checkIn || !checkOut)
-              return toast.error("Please select check-in and check-out dates");
+            if (!checkIn || !checkOut) return toast.error("Select dates");
             const ci = new Date(checkIn);
             const co = new Date(checkOut);
             if (ci >= co)
               return toast.error("Check-out must be after check-in");
-            if (Number(guests) < 1)
-              return toast.error("Guests must be at least 1");
 
             try {
               setBookingLoading(true);
-              // Check availability
               const avail = await api.get(
                 `/bookings/availability?roomId=${id}&checkIn=${checkIn}&checkOut=${checkOut}`
               );
 
-              if (!avail.data.available) {
-                toast.error("Room is not available for selected dates");
-                return;
-              }
+              if (!avail.data.available)
+                return toast.error("Dates not available");
 
-              const msPerDay = 1000 * 60 * 60 * 24;
-              const nights = Math.round((co - ci) / msPerDay);
+              const nights = Math.round((co - ci) / (1000 * 60 * 60 * 24));
+              const totalPrice = nights * room.price;
 
-              if (nights <= 0) return toast.error("Invalid date range");
-
-              const totalPrice = nights * (room.price || 0);
-
-              // Create booking
               await api.post(
                 "/bookings",
                 {
                   room: room._id,
-                  hotel: room.hotel._id,
+                  hotel: room.hotel?._id,
                   checkIn,
                   checkOut,
                   guests: Number(guests),
@@ -165,135 +191,82 @@ const RoomDetails = () => {
               toast.success("Booking successful!");
               navigate("/my-bookings");
             } catch (err) {
-              console.error(err);
-              if (err.response?.status === 409) {
-                toast.error(
-                  err.response.data.message ||
-                    "Selected dates are not available"
-                );
-              } else {
-                toast.error("Failed to create booking");
-              }
+              toast.error(err.response?.data?.message || "Booking failed");
             } finally {
               setBookingLoading(false);
             }
           }}
-          className="flex flex-col md:flex-row items-start md:items-center justify-between bg-white shadow-[0px_0px_20px_rgba(0,0,0,0.15)] p-6 rounded-xl mx-auto mt-16 max-w-6xl"
+          className="bg-white p-6 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] flex flex-col md:flex-row items-end gap-6"
         >
-          <div className="flex flex-col flex-wrap md:flex-row items-start md:items-center gap-4 md:gap-10 text-gray-500">
-            <div className="flex flex-col">
-              <label htmlFor="checkInDate" className="font-medium">
-                Check-In
-              </label>
-              <input
-                type="date"
-                id="checkInDate"
-                value={checkIn}
-                onChange={(e) => setCheckIn(e.target.value)}
-                placeholder="Check-In"
-                className="w-full rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none"
-                required
-              />
-            </div>
-
-            <div className="w-px h-15 bg-gray-300/70 max-md:hidden"></div>
-
-            {/* Check Out */}
-            <div className="flex flex-col">
-              <label htmlFor="checkOutDate" className="font-medium">
-                Check-Out
-              </label>
-              <input
-                type="date"
-                id="checkOutDate"
-                value={checkOut}
-                onChange={(e) => setCheckOut(e.target.value)}
-                placeholder="Check-Out"
-                className="w-full rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none"
-                required
-              />
-            </div>
-
-            <div className="w-px h-15 bg-gray-300/70 max-md:hidden"></div>
-
-            {/* Guest */}
-            <div className="flex flex-col">
-              <label htmlFor="guest" className="font-medium">
-                Guests
-              </label>
-              <input
-                type="number"
-                id="guest"
-                value={guests}
-                onChange={(e) => setGuests(e.target.value)}
-                placeholder="0"
-                className="max-w-20 rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none"
-                required
-              />
-            </div>
+          <div className="w-full space-y-2">
+            <label className="text-sm font-semibold text-gray-600 ml-1">
+              Check-In
+            </label>
+            <input
+              type="date"
+              value={checkIn}
+              onChange={(e) => setCheckIn(e.target.value)}
+              className="w-full p-3 border rounded-xl outline-blue-500"
+              required
+            />
+          </div>
+          <div className="w-full space-y-2">
+            <label className="text-sm font-semibold text-gray-600 ml-1">
+              Check-Out
+            </label>
+            <input
+              type="date"
+              value={checkOut}
+              onChange={(e) => setCheckOut(e.target.value)}
+              className="w-full p-3 border rounded-xl outline-blue-500"
+              required
+            />
+          </div>
+          <div className="w-full md:w-40 space-y-2">
+            <label className="text-sm font-semibold text-gray-600 ml-1">
+              Guests
+            </label>
+            <input
+              type="number"
+              value={guests}
+              onChange={(e) => setGuests(e.target.value)}
+              className="w-full p-3 border rounded-xl outline-blue-500"
+              min="1"
+              required
+            />
           </div>
           <button
-            className=" bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all text-white rounded-md max-md:w-full max-md:mt-6 md:px-25 py-3 md:py-4 text-base cursor-pointer"
+            className="w-full md:w-auto bg-blue-600 text-white px-12 py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-all active:scale-95 whitespace-nowrap"
             type="submit"
-            disabled={bookingLoading}
           >
             {bookingLoading ? "Booking..." : "Book Now"}
           </button>
         </form>
+      </div>
 
-        {/* Commom Specicification */}
-        <div className="mt-25 space-y-4">
-          {roomCommonData.map((spec, index) => (
-            <div className="flex items-center gap-2" key={index}>
-              <img
-                src={spec.icon}
-                alt={`${spec.title}-icon`}
-                className="w-6.5 "
-              />
-              <div>
-                <p className="text-base">{spec.title}</p>
-                <p className="text-gray-500">{spec.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="max-w-3xl border-y border-gray-300 my-15 py-10 text-gray-500">
-          <p>
-            Guest will be allocated on the ground floor according to
-            availabilty. you get a comfortable Two bedroom apartment has a true
-            city feeling. The price quoted is for two guest, at the guest slot
-            please mark the number of guests to get the exact price for two
-            groups. The Guests will be allocated ground floor according to
-            availability. You get the comfortable two bedroom - apartment that
-            has a true city feeling.
-          </p>
-        </div>
-
-        {/* Hosted By */}
-        <div className="flex flex-col items-start gap-4">
-          <div className="flex gap-4">
-            <img
-              src={
-                getImageUrl(room.hotel.images?.[0] || null) || assets.userIcon
-              }
-              alt="Host"
-              className="h-14 w-14 md:h-18 md:w-18 rounded-full object-cover"
-            />
-            <div>
-              <p className="text-lg md:text-xl">Hosted by {room.hotel.name}</p>
-              <div className="flex items-center mt-1">
-                <StarRating />
-                <p className="ml-2">200+ Reviews</p>
-              </div>
+      {/* Host Section */}
+      <div className="mt-20 p-8 bg-gray-50 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-6">
+          <img
+            src={getImageUrl(room.hotel?.images?.[0]) || assets.userIcon}
+            alt="Host"
+            className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-sm"
+          />
+          <div>
+            <h3 className="text-xl font-bold text-gray-800">
+              Hosted by {room.hotel?.name}
+            </h3>
+            <p className="text-gray-500 text-sm">Verified Professional Host</p>
+            <div className="flex items-center mt-1 text-orange-500">
+              <StarRating rating={5} />
             </div>
           </div>
-          <button className="px-6 py-2.5 mt-4 rounded text-white bg-blue-500 hover:bg-blue-700 transition-all cursor-pointer ">
-            Contact Now
-          </button>
         </div>
+        <button className="bg-white border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition-all">
+          Contact Host
+        </button>
       </div>
-    )
+    </div>
   );
 };
 
