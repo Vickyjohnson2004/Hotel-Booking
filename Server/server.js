@@ -59,7 +59,7 @@ app.use(
     origin: (origin, callback) => {
       const allowedOrigins = [
         "http://localhost:5173",
-        "https://quickstay-sigma-ten.vercel.app", // Your "main" production URL
+        "https://hotel-booking-eight-ashen.vercel.app",
       ];
 
       // This Regex checks if the origin ends with "-victor-johnsons-projects.vercel.app"
