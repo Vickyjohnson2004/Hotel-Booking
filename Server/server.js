@@ -62,6 +62,9 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// ADD THIS LINE HERE:
+app.options("*", cors());
 app.use(express.json());
 app.use(cookieParser());
 
