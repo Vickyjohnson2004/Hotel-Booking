@@ -1,7 +1,4 @@
-// server.js (top)
 import dotenv from "dotenv";
-dotenv.config({ path: "./.env" }); // MUST be first
-
 import express from "express";
 import cors from "cors";
 import fs from "fs";
@@ -9,33 +6,9 @@ import cookieParser from "cookie-parser";
 import connectDB from "./configs/db.js";
 import path from "path";
 
-// Load .env: prefer workspace root .env, fallback to Server/.env
-const rootEnv = path.resolve(process.cwd(), "..", ".env");
-const serverEnv = path.resolve(process.cwd(), ".env");
-if (fs.existsSync(rootEnv)) {
-  dotenv.config({ path: rootEnv });
-  console.info("Loaded environment variables from root .env");
-} else if (fs.existsSync(serverEnv)) {
-  dotenv.config({ path: serverEnv });
-  console.info("Loaded environment variables from Server/.env");
-} else {
-  dotenv.config(); // default behavior
-  console.info("No .env found in root or Server; loaded defaults if any");
-}
-
-// Warn about duplicate .env files that can be confusing. Prefer a single root .env.
-const clientEnv = path.resolve(process.cwd(), "..", "Client", ".env");
-const duplicates = [];
-if (fs.existsSync(rootEnv)) duplicates.push("root .env");
-if (fs.existsSync(serverEnv)) duplicates.push("Server/.env");
-if (fs.existsSync(clientEnv)) duplicates.push("Client/.env");
-if (duplicates.length > 1) {
-  console.warn(
-    "Multiple .env files detected (",
-    duplicates.join(", "),
-    "). Recommended: use only one root .env and remove others to avoid confusion. See Client/README.md for details."
-  );
-}
+// Initialize dotenv - Vercel handles this automatically in production,
+// but this keeps it working locally.
+dotenv.config();
 
 // Import routes
 import authRoutes from "./routes/authRoutes.js";
@@ -54,21 +27,24 @@ const app = express();
 connectDB();
 
 // ================= MIDDLEWARES =================
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://hotel-booking-eight-ashen.vercel.app",
+];
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      const allowedOrigins = [
-        "http://localhost:5173",
-        "https://hotel-booking-eight-ashen.vercel.app",
-      ];
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
 
-      // This Regex checks if the origin ends with "-victor-johnsons-projects.vercel.app"
-      const isVercelPreview =
-        origin && origin.endsWith("-victor-johnsons-projects.vercel.app");
+      const isVercelPreview = origin.endsWith(".vercel.app");
 
-      if (!origin || allowedOrigins.includes(origin) || isVercelPreview) {
+      if (allowedOrigins.includes(origin) || isVercelPreview) {
         callback(null, true);
       } else {
+        console.error(`CORS Error: Origin ${origin} not allowed`);
         callback(new Error("Not allowed by CORS"));
       }
     },
@@ -77,11 +53,16 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   })
 );
+
+// Handle preflight requests globally
+app.options("*", cors());
+
 app.use(express.json());
 app.use(cookieParser());
 
 // ================= ROUTES =================
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
 app.use("/api/auth", authRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/hotels", hotelRoutes);
@@ -95,10 +76,7 @@ app.use("/api/newsletter", newsletterRoutes);
 // ================= HEALTH CHECK =================
 app.get("/", (req, res) => res.send("API is working 🚀"));
 app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    status: "ok",
-    message: "Backend is running",
-  });
+  res.status(200).json({ status: "ok", message: "Backend is running" });
 });
 
 // ================= ERROR HANDLING =================
@@ -107,6 +85,10 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  // If CORS error, handle it gracefully
+  if (err.message === "Not allowed by CORS") {
+    return res.status(403).json({ message: err.message });
+  }
   console.error(err.stack);
   res
     .status(err.status || 500)
@@ -116,3 +98,5 @@ app.use((err, req, res, next) => {
 // ================= START SERVER =================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT} 🚀`));
+
+export default app; // Required for Vercel
