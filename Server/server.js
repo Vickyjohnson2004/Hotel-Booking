@@ -59,10 +59,14 @@ app.use(
     origin: (origin, callback) => {
       const allowedOrigins = [
         "http://localhost:5173",
-        "https://quickstay-sigma-ten.vercel.app",
+        "https://quickstay-sigma-ten.vercel.app", // Your "main" production URL
       ];
-      // Allow requests with no origin (like mobile apps or curl)
-      if (!origin || allowedOrigins.includes(origin)) {
+
+      // This Regex checks if the origin ends with "-victor-johnsons-projects.vercel.app"
+      const isVercelPreview =
+        origin && origin.endsWith("-victor-johnsons-projects.vercel.app");
+
+      if (!origin || allowedOrigins.includes(origin) || isVercelPreview) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
@@ -70,12 +74,9 @@ app.use(
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"], // Added Cookie
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   })
 );
-
-// ADD THIS LINE HERE:
-app.options("*", cors());
 app.use(express.json());
 app.use(cookieParser());
 
