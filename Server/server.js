@@ -27,17 +27,20 @@ connectDB();
 
 // ================= MIDDLEWARES =================
 
-const allowedOrigins = [
-  "https://hotel-booking-eight-ashen.vercel.app",
-  "https://quickstay-im3lzyyul-victor-johnsons-projects.vercel.app", // Add the one from your error
-  "http://localhost:5173",
-];
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // 1. Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+
+      // 2. Dynamic check: Allow localhost OR any Vercel domain
+      const isAllowed =
+        origin.includes("localhost") || origin.includes("vercel.app");
+
+      if (isAllowed) {
         callback(null, true);
       } else {
+        console.error(`CORS Blocked Origin: ${origin}`);
         callback(new Error("Not allowed by CORS"));
       }
     },
@@ -54,8 +57,8 @@ app.use(
 
 /**
  * EXPRESS 5 FIX:
- * In Express 5, '*' is no longer supported.
- * We use 'regExp' syntax: /(.*)/ to match all paths for the preflight OPTIONS check.
+ * Handles browser preflight (OPTIONS) requests.
+ * Using regex /(.*)/ for Express 5 compatibility.
  */
 app.options(/(.*)/, cors());
 
@@ -63,6 +66,16 @@ app.use(express.json());
 app.use(cookieParser());
 
 // ================= ROUTES =================
+
+// Health Checks (Useful for Vercel monitoring)
+app.get("/", (req, res) => res.send("API is working 🚀"));
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Backend is running",
+  });
+});
+
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/auth", authRoutes);
 app.use("/api/search", searchRoutes);
@@ -74,19 +87,13 @@ app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/offers", offerRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 
-// ================= HEALTH CHECK =================
-app.get("/", (req, res) => res.send("API is working 🚀"));
-app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    status: "ok",
-    message: "Backend is running",
-  });
-});
-
 // ================= ERROR HANDLING =================
-// Note: In Express 5, you must use a regex or a specific string for catch-all
+
+// Catch-all for undefined routes
 app.all(/(.*)/, (req, res) => {
-  res.status(404).json({ message: "Route not found" });
+  res
+    .status(404)
+    .json({ message: `Route ${req.url} not found on this server.` });
 });
 
 app.use((err, req, res, next) => {
