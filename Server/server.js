@@ -27,54 +27,48 @@ connectDB();
 
 // ================= MIDDLEWARES =================
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // 1. Allow requests with no origin (like mobile apps or curl)
-      if (!origin) return callback(null, true);
+// 1. Define CORS options
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow local development and ANY Vercel preview/production link
+    if (
+      !origin ||
+      origin.includes("localhost") ||
+      origin.includes("vercel.app")
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+  ],
+  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+};
 
-      // 2. Dynamic check: Allow localhost OR any Vercel domain
-      const isAllowed =
-        origin.includes("localhost") || origin.includes("vercel.app");
+// 2. Apply CORS to ALL requests
+app.use(cors(corsOptions));
 
-      if (isAllowed) {
-        callback(null, true);
-      } else {
-        console.error(`CORS Blocked Origin: ${origin}`);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Requested-With",
-      "Accept",
-    ],
-  })
-);
-
-/**
- * EXPRESS 5 FIX:
- * Handles browser preflight (OPTIONS) requests.
- * Using regex /(.*)/ for Express 5 compatibility.
- */
-app.options(/(.*)/, cors());
+// 3. Handle Preflight (OPTIONS) explicitly for Express 5
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());
 
 // ================= ROUTES =================
 
-// Health Checks (Useful for Vercel monitoring)
-app.get("/", (req, res) => res.send("API is working 🚀"));
+// Move Health check to top level for easiest access
 app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    status: "ok",
-    message: "Backend is running",
-  });
+  res.status(200).json({ status: "ok", message: "Backend is running" });
 });
+
+app.get("/", (req, res) => res.send("API is working 🚀"));
 
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/auth", authRoutes);
@@ -90,10 +84,8 @@ app.use("/api/newsletter", newsletterRoutes);
 // ================= ERROR HANDLING =================
 
 // Catch-all for undefined routes
-app.all(/(.*)/, (req, res) => {
-  res
-    .status(404)
-    .json({ message: `Route ${req.url} not found on this server.` });
+app.use((req, res) => {
+  res.status(404).json({ message: `Route ${req.url} not found.` });
 });
 
 app.use((err, req, res, next) => {
@@ -103,6 +95,5 @@ app.use((err, req, res, next) => {
     .json({ message: err.message || "Server error" });
 });
 
-// ================= START SERVER =================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT} 🚀`));
