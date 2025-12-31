@@ -1,6 +1,6 @@
-// server.js (top)
+// server.js
 import dotenv from "dotenv";
-dotenv.config({ path: "./.env" }); // MUST be first
+dotenv.config();
 
 import express from "express";
 import cors from "cors";
@@ -8,34 +8,6 @@ import fs from "fs";
 import cookieParser from "cookie-parser";
 import connectDB from "./configs/db.js";
 import path from "path";
-
-// Load .env: prefer workspace root .env, fallback to Server/.env
-const rootEnv = path.resolve(process.cwd(), "..", ".env");
-const serverEnv = path.resolve(process.cwd(), ".env");
-if (fs.existsSync(rootEnv)) {
-  dotenv.config({ path: rootEnv });
-  console.info("Loaded environment variables from root .env");
-} else if (fs.existsSync(serverEnv)) {
-  dotenv.config({ path: serverEnv });
-  console.info("Loaded environment variables from Server/.env");
-} else {
-  dotenv.config(); // default behavior
-  console.info("No .env found in root or Server; loaded defaults if any");
-}
-
-// Warn about duplicate .env files that can be confusing. Prefer a single root .env.
-const clientEnv = path.resolve(process.cwd(), "..", "Client", ".env");
-const duplicates = [];
-if (fs.existsSync(rootEnv)) duplicates.push("root .env");
-if (fs.existsSync(serverEnv)) duplicates.push("Server/.env");
-if (fs.existsSync(clientEnv)) duplicates.push("Client/.env");
-if (duplicates.length > 1) {
-  console.warn(
-    "Multiple .env files detected (",
-    duplicates.join(", "),
-    "). Recommended: use only one root .env and remove others to avoid confusion. See Client/README.md for details."
-  );
-}
 
 // Import routes
 import authRoutes from "./routes/authRoutes.js";
@@ -54,16 +26,38 @@ const app = express();
 connectDB();
 
 // ================= MIDDLEWARES =================
+
+const allowedOrigins = [
+  "https://hotel-booking-eight-ashen.vercel.app",
+  "http://localhost:5173",
+];
+
 app.use(
   cors({
-    origin: "https://hotel-booking-eight-ashen.vercel.app",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+    ],
   })
 );
 
-// Add this right after CORS to handle the "Preflight" check
-app.options("*", cors());
+/**
+ * EXPRESS 5 FIX:
+ * In Express 5, '*' is no longer supported.
+ * We use 'regExp' syntax: /(.*)/ to match all paths for the preflight OPTIONS check.
+ */
+app.options(/(.*)/, cors());
 
 app.use(express.json());
 app.use(cookieParser());
@@ -90,7 +84,8 @@ app.get("/api/health", (req, res) => {
 });
 
 // ================= ERROR HANDLING =================
-app.use((req, res) => {
+// Note: In Express 5, you must use a regex or a specific string for catch-all
+app.all(/(.*)/, (req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
