@@ -25,19 +25,7 @@ const app = express();
 connectDB();
 
 /* ================= CORS ================= */
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // curl, mobile, Postman
-      // ✅ allow all frontends on vercel
-      if (origin.endsWith(".vercel.app")) return callback(null, true);
-      return callback(null, false); // block everything else
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+app.use(cors());
 
 /* ================= MIDDLEWARES ================= */
 app.use(express.json());
