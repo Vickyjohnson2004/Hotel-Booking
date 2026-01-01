@@ -25,16 +25,12 @@ const app = express();
 connectDB();
 
 /* ================= CORS ================= */
-const allowedOrigins = [
-  "https://quickstay-git-main-victor-johnsons-projects.vercel.app",
-  "https://quickstay-4jt3191k5-victor-johnsons-projects.vercel.app",
-];
-
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // mobile apps, curl
-      if (allowedOrigins.includes(origin)) return callback(null, true);
+      if (!origin) return callback(null, true); // curl, mobile, Postman
+      // ✅ allow all frontends on vercel
+      if (origin.endsWith(".vercel.app")) return callback(null, true);
       return callback(null, false); // block everything else
     },
     credentials: true,
