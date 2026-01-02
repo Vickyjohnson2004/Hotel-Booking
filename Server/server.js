@@ -30,7 +30,7 @@ const allowedOrigins = [
   "https://quickstay-gnfye0hf7-victor-johnsons-projects.vercel.app",
   "https://quickstay-e4tvvduel-victor-johnsons-projects.vercel.app",
   "https://quickstay-4jt3191k5-victor-johnsons-projects.vercel.app",
-  // add more previews here if needed
+  "https://quickstay-57ptso8vr-victor-johnsons-projects.vercel.app", // ✅ new one
 ];
 
 app.use(
