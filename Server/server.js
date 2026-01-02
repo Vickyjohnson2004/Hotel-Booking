@@ -26,16 +26,23 @@ connectDB();
 
 /* ================= CORS ================= */
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://quickstay-gnfye0hf7-victor-johnsons-projects.vercel.app",
-  "https://quickstay-e4tvvduel-victor-johnsons-projects.vercel.app",
-  "https://quickstay-4jt3191k5-victor-johnsons-projects.vercel.app",
-  "https://quickstay-57ptso8vr-victor-johnsons-projects.vercel.app", // ✅ new one
+  "http://localhost:5173", // local dev
+  "https://hotel-booking-eight-ashen.vercel.app", // your production alias
+  // you can still list any fixed domains you want strict control over
 ];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // allow server-to-server requests
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".vercel.app") // ✅ allow all Vercel preview deployments
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
