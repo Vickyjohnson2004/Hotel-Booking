@@ -1,13 +1,26 @@
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
 
 const connectDB = async () => {
   try {
-    mongoose.connection.on("connected", () => {
-      console.log("Database Connected");
+    if (!process.env.MONGODB_URL) {
+      throw new Error("MONGODB_URL is not defined in environment variables");
+    }
+
+    // Connect to MongoDB
+    await mongoose.connect(process.env.MONGODB_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
-    await mongoose.connect(`${process.env.MONGODB_URL}`);
+
+    console.log("✅ MongoDB connected");
+
+    // Optional: log disconnections
+    mongoose.connection.on("disconnected", () => {
+      console.warn("⚠️ MongoDB disconnected");
+    });
   } catch (error) {
-    console.log(error.message);
+    console.error("❌ MongoDB connection failed:", error.message);
+    process.exit(1); // Stop the server if DB fails
   }
 };
 
