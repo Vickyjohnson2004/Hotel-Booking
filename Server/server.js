@@ -29,8 +29,9 @@ connectDB();
 
 const allowedOrigins = [
   "https://hotel-booking-eight-ashen.vercel.app",
-  "https://quickstay-im3lzyyul-victor-johnsons-projects.vercel.app", // Add the one from your error
+  "https://quickstay-im3lzyyul-victor-johnsons-projects.vercel.app",
   "http://localhost:5173",
+  "https://quickstay-p38ci7oj9-victor-johnsons-projects.vercel.app",
 ];
 app.use(
   cors({

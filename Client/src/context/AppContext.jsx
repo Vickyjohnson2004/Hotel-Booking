@@ -3,45 +3,51 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import toast from "react-hot-toast";
 
-export const AppContext = createContext();
+export const AppContext = createContext(null);
 
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
   const currency = import.meta.env.VITE_CURRENCY || "$";
 
-  // ✅ Provide a refresh helper and fetch logged-in user on mount (cookie-based)
+  // ================= AUTH HELPERS =================
+
+  // ✅ Fetch logged-in user (cookie-based)
   const refreshUser = async () => {
     try {
-      setLoading(true);
-      const res = await api.get("/auth/me");
+      const res = await api.get("/auth/me"); // ✅ FIXED
       setUser(res.data.user);
       return res.data.user;
     } catch {
       setUser(null);
       return null;
-    } finally {
-      setLoading(false);
     }
   };
 
+  // Run once on app mount
   useEffect(() => {
-    // call refreshUser on mount
-    refreshUser();
+    const initAuth = async () => {
+      await refreshUser();
+      setLoading(false);
+    };
+
+    initAuth();
   }, []);
 
-  // ✅ Login
+  // ================= ACTIONS =================
+
   const login = async (email, password) => {
     try {
       toast.loading("Logging in...", { id: "auth" });
 
-      const res = await api.post("/auth/login", { email, password });
+      const res = await api.post("/auth/login", { email, password }); // ✅ FIXED
+
       setUser(res.data.user);
-
       toast.success("Welcome back 👋", { id: "auth" });
-      navigate("/admin");
 
+      navigate("/admin");
       return res.data.user;
     } catch (err) {
       toast.error(err.response?.data?.message || "Login failed", {
@@ -51,7 +57,6 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // ✅ Signup
   const signup = async (username, email, password) => {
     try {
       toast.loading("Creating account...", { id: "auth" });
@@ -60,10 +65,10 @@ export const AppProvider = ({ children }) => {
         username,
         email,
         password,
-      });
+      }); // ✅ FIXED
 
       setUser(res.data.user);
-      toast.success("Account created successfully 🎉", { id: "auth" });
+      toast.success("Account created 🎉", { id: "auth" });
 
       navigate("/admin");
       return res.data.user;
@@ -75,10 +80,9 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // ✅ Logout
   const logout = async () => {
     try {
-      await api.get("/auth/logout");
+      await api.get("/auth/logout"); // ✅ FIXED
       setUser(null);
       toast.success("Logged out successfully");
       navigate("/login");
@@ -87,6 +91,8 @@ export const AppProvider = ({ children }) => {
       console.error(err);
     }
   };
+
+  // ================= PROVIDER =================
 
   return (
     <AppContext.Provider

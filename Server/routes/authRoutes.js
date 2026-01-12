@@ -6,7 +6,7 @@ import {
   forgotPassword,
   resetPassword,
   updatePassword,
-  getMe, // ✅ import getMe
+  getMe,
 } from "../controllers/authController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -17,7 +17,6 @@ router.post("/login", login);
 
 router.get("/logout", logout);
 
-// ✅ new route to get current logged-in user
 router.get("/me", protect, getMe);
 
 router.post("/forgot-password", forgotPassword);
