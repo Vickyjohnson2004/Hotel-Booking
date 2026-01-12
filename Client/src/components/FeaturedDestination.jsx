@@ -14,7 +14,7 @@ const FeaturedDestination = () => {
     const fetch = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/rooms?limit=4");
+        const res = await api.get("/api/rooms?limit=4");
         setRooms(res.data.rooms || []);
       } catch (err) {
         console.error(err);

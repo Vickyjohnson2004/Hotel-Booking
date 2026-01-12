@@ -27,7 +27,7 @@ function App() {
   // TEMP BACKEND CONNECTION TEST
   useEffect(() => {
     api
-      .get("/health")
+      .get("/api/health")
       .then((res) => console.log("✅ Backend connected:", res.data))
       .catch((err) => console.error("❌ Backend error:", err));
   }, []);

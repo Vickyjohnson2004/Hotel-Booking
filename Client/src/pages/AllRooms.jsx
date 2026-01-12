@@ -76,7 +76,7 @@ const AllRooms = () => {
     const fetchRooms = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/rooms", { withCredentials: true });
+        const res = await api.get("/api/rooms", { withCredentials: true });
         setRooms(res.data.rooms || []);
       } catch (err) {
         console.error("Failed to fetch rooms:", err);
@@ -135,8 +135,7 @@ const AllRooms = () => {
 
   const displayedRooms = applyFilters(rooms);
 
-  const apiBase =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/api";
+  const apiBase = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
   const backendOrigin = apiBase.replace(/\/api\/?$/, "");
   const getImageUrl = (img) => {
     if (!img) return assets.uploadArea;

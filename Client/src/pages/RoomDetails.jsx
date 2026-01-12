@@ -22,7 +22,7 @@ const RoomDetails = () => {
     const fetchRoom = async () => {
       try {
         setLoadingRoom(true);
-        const res = await api.get(`/rooms/${id}`);
+        const res = await api.get(`/api/rooms/${id}`);
 
         if (res.data.success && res.data.room) {
           setRoom(res.data.room);
@@ -166,7 +166,7 @@ const RoomDetails = () => {
             try {
               setBookingLoading(true);
               const avail = await api.get(
-                `/bookings/availability?roomId=${id}&checkIn=${checkIn}&checkOut=${checkOut}`
+                `/api/bookings/availability?roomId=${id}&checkIn=${checkIn}&checkOut=${checkOut}`
               );
 
               if (!avail.data.available)
@@ -176,7 +176,7 @@ const RoomDetails = () => {
               const totalPrice = nights * room.price;
 
               await api.post(
-                "/bookings",
+                "/api/bookings",
                 {
                   room: room._id,
                   hotel: room.hotel?._id,

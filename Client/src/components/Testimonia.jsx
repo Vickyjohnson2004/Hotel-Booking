@@ -25,7 +25,7 @@ const Testimonia = () => {
     const fetch = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/testimonials");
+        const res = await api.get("/api/testimonials");
         setTestimonials(res.data.testimonials || []);
       } catch (err) {
         console.error(err);
@@ -48,7 +48,7 @@ const Testimonia = () => {
 
     try {
       setSubmitting(true);
-      const res = await api.post("/testimonials", form);
+      const res = await api.post("/api/testimonials", form);
 
       // Optimistic UI: insert the new testimonial locally as pending so the submitter sees it immediately
       const pending = {
@@ -82,7 +82,7 @@ const Testimonia = () => {
       // background refresh to pick up any newly-approved items (supports auto-approve scenarios)
       setTimeout(async () => {
         try {
-          const refreshed = await api.get("/testimonials");
+          const refreshed = await api.get("/api/testimonials");
           setTestimonials((existing) => {
             const pendingItems = (existing || []).filter((i) => i.pending);
             return [...pendingItems, ...(refreshed.data.testimonials || [])];

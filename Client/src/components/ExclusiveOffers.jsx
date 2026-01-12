@@ -13,7 +13,7 @@ const ExclusiveOffers = () => {
     const fetch = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/offers");
+        const res = await api.get("/api/offers");
         setOffers(res.data.offers || []);
       } catch (err) {
         console.error(err);

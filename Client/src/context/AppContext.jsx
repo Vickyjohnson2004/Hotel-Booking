@@ -17,7 +17,7 @@ export const AppProvider = ({ children }) => {
   // ✅ Fetch logged-in user (cookie-based)
   const refreshUser = async () => {
     try {
-      const res = await api.get("/auth/me"); // ✅ FIXED
+      const res = await api.get("/api/auth/me"); // ✅ FIXED
       setUser(res.data.user);
       return res.data.user;
     } catch {
@@ -42,7 +42,7 @@ export const AppProvider = ({ children }) => {
     try {
       toast.loading("Logging in...", { id: "auth" });
 
-      const res = await api.post("/auth/login", { email, password }); // ✅ FIXED
+      const res = await api.post("/api/auth/login", { email, password }); // ✅ FIXED
 
       setUser(res.data.user);
       toast.success("Welcome back 👋", { id: "auth" });
@@ -61,7 +61,7 @@ export const AppProvider = ({ children }) => {
     try {
       toast.loading("Creating account...", { id: "auth" });
 
-      const res = await api.post("/auth/signup", {
+      const res = await api.post("/api/auth/signup", {
         username,
         email,
         password,
@@ -82,7 +82,7 @@ export const AppProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await api.get("/auth/logout"); // ✅ FIXED
+      await api.get("/api/auth/logout"); // ✅ FIXED
       setUser(null);
       toast.success("Logged out successfully");
       navigate("/login");

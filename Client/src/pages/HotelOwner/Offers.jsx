@@ -26,7 +26,7 @@ const Offers = () => {
   const fetchOffers = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/offers", { withCredentials: true });
+      const res = await api.get("/api/offers", { withCredentials: true });
       setOffers(res.data.offers || []);
     } catch (err) {
       console.error("Failed to fetch offers", err);
@@ -69,7 +69,7 @@ const Offers = () => {
       if (form.priceOff) payload.append("priceOff", String(form.priceOff));
       if (form.expiryDate) payload.append("expiryDate", form.expiryDate);
 
-      const res = await api.post("/offers", payload, {
+      const res = await api.post("/api/offers", payload, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });
@@ -128,7 +128,7 @@ const Offers = () => {
       if (editForm.expiryDate)
         payload.append("expiryDate", editForm.expiryDate);
 
-      const res = await api.patch(`/offers/${id}`, payload, {
+      const res = await api.patch(`/api/offers/${id}`, payload, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });
@@ -148,7 +148,7 @@ const Offers = () => {
     if (!window.confirm("Delete this offer?")) return;
     try {
       setLoading(true);
-      await api.delete(`/offers/${id}`, { withCredentials: true });
+      await api.delete(`/api/offers/${id}`, { withCredentials: true });
       setOffers((prev) => prev.filter((o) => o._id !== id));
       toast.success("Offer deleted");
     } catch (err) {
