@@ -22,16 +22,16 @@ import newsletterRoutes from "./routes/newsletterRoutes.js";
 
 const app = express();
 
-// Connect to MongoDB
+// ================= CONNECT TO DATABASE =================
 connectDB();
 
 // ================= MIDDLEWARES =================
-
 const allowedOrigins = [
   "https://hotel-booking-eight-ashen.vercel.app",
   "https://quickstay-im3lzyyul-victor-johnsons-projects.vercel.app",
   "http://localhost:5173",
   "https://quickstay-p38ci7oj9-victor-johnsons-projects.vercel.app",
+  "https://quickstay-mztcv7pb6-victor-johnsons-projects.vercel.app",
 ];
 app.use(
   cors({
@@ -53,11 +53,6 @@ app.use(
   })
 );
 
-/**
- * EXPRESS 5 FIX:
- * In Express 5, '*' is no longer supported.
- * We use 'regExp' syntax: /(.*)/ to match all paths for the preflight OPTIONS check.
- */
 app.options(/(.*)/, cors());
 
 app.use(express.json());
@@ -78,14 +73,10 @@ app.use("/api/newsletter", newsletterRoutes);
 // ================= HEALTH CHECK =================
 app.get("/", (req, res) => res.send("API is working 🚀"));
 app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    status: "ok",
-    message: "Backend is running",
-  });
+  res.status(200).json({ status: "ok", message: "Backend is running" });
 });
 
 // ================= ERROR HANDLING =================
-// Note: In Express 5, you must use a regex or a specific string for catch-all
 app.all(/(.*)/, (req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
@@ -97,6 +88,12 @@ app.use((err, req, res, next) => {
     .json({ message: err.message || "Server error" });
 });
 
-// ================= START SERVER =================
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT} 🚀`));
+// ================= START SERVER LOCALLY =================
+// Only start listening if not running on Vercel (serverless)
+if (process.env.VERCEL !== "1") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`Server running on port ${PORT} 🚀`));
+}
+
+// ================= EXPORT FOR VERCEL =================
+export default app;

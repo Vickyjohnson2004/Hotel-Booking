@@ -29,7 +29,7 @@ const Offers = () => {
       const res = await api.get("/api/offers", { withCredentials: true });
       setOffers(res.data.offers || []);
     } catch (err) {
-      console.error("Failed to fetch offers", err);
+      console.error("Failed tao fetch offers", err);
       toast.error("Failed to fetch offers");
     } finally {
       setLoading(false);
