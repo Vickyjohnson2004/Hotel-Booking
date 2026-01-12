@@ -9,8 +9,11 @@ export const getTestimonials = async (req, res) => {
       .limit(10);
     res.json({ status: "success", results: testimonials.length, testimonials });
   } catch (error) {
-    console.error("GET TESTIMONIALS ERROR:", error);
-    res.status(500).json({ message: "Failed to fetch testimonials" });
+    console.error("GET /api/offers ERROR:", error); // log full error on Vercel
+    res.status(500).json({
+      message: "Failed to fetch offers",
+      error: error.message, // send actual error to frontend for debugging
+    });
   }
 };
 

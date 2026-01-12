@@ -7,8 +7,11 @@ export const getOffers = async (req, res) => {
     const offers = await Offer.find().sort("-createdAt");
     res.json({ status: "success", results: offers.length, offers });
   } catch (error) {
-    console.error("GET OFFERS ERROR:", error);
-    res.status(500).json({ message: "Failed to fetch offers" });
+    console.error("GET /api/offers ERROR:", error); // log full error on Vercel
+    res.status(500).json({
+      message: "Failed to fetch offers",
+      error: error.message, // send actual error to frontend for debugging
+    });
   }
 };
 
