@@ -82,7 +82,7 @@ export const AppProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await api.get("/api/auth/logout"); // ✅ FIXED
+      await api.get("/api/auth/logout");
       setUser(null);
       toast.success("Logged out successfully");
       navigate("/login");

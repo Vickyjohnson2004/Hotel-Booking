@@ -12,7 +12,7 @@ const AdminTestimonials = () => {
   const fetchTestimonials = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/testimonials/all", {
+      const res = await api.get("/api/testimonials/all", {
         withCredentials: true,
       });
       setTestimonials(res.data.testimonials || []);
@@ -35,7 +35,7 @@ const AdminTestimonials = () => {
     if (!ok) return;
 
     try {
-      await api.delete(`/testimonials/${id}`, { withCredentials: true });
+      await api.delete(`/api/testimonials/${id}`, { withCredentials: true });
       setTestimonials((t) => t.filter((item) => item._id !== id));
       toast.success("Testimonial deleted");
     } catch (err) {
@@ -47,7 +47,7 @@ const AdminTestimonials = () => {
   const approve = async (id) => {
     try {
       await api.patch(
-        `/testimonials/${id}/approve`,
+        `/api/testimonials/${id}/approve`,
         {},
         { withCredentials: true }
       );

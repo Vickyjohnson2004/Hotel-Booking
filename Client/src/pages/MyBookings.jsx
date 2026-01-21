@@ -11,7 +11,7 @@ const MyBookings = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await api.get("/bookings/me", {
+        const res = await api.get("/api/bookings/me", {
           withCredentials: true,
         });
 

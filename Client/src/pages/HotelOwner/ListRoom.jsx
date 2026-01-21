@@ -20,7 +20,7 @@ const ListRoom = () => {
 
       try {
         setLoading(true);
-        const res = await api.get(`/rooms/hotel/${user.hotel}`, {
+        const res = await api.get(`/api/rooms/hotel/${user.hotel}`, {
           withCredentials: true,
         });
 

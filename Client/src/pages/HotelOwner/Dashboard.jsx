@@ -25,7 +25,7 @@ const Dashboard = () => {
 
       try {
         setLoading(true);
-        const res = await api.get(`/bookings/hotel/${user.hotel}`, {
+        const res = await api.get(`/api/bookings/hotel/${user.hotel}`, {
           withCredentials: true,
         });
 
@@ -38,7 +38,7 @@ const Dashboard = () => {
         // If admin, also fetch pending testimonial count
         if (user?.role === "admin") {
           try {
-            const tRes = await api.get("/testimonials/all", {
+            const tRes = await api.get("/api/testimonials/all", {
               withCredentials: true,
             });
             const pendingCount = (tRes.data.testimonials || []).filter(
