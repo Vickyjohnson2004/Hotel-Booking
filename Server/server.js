@@ -26,13 +26,14 @@ const app = express();
 connectDB();
 
 // ================= MIDDLEWARES =================
-const allowedOrigins = [
-  "https://hotel-booking-eight-ashen.vercel.app",
-  "https://quickstay-im3lzyyul-victor-johnsons-projects.vercel.app",
-  "http://localhost:5173",
-  "https://quickstay-p38ci7oj9-victor-johnsons-projects.vercel.app",
-  "https://quickstay-mztcv7pb6-victor-johnsons-projects.vercel.app",
-];
+const allowedOrigins = ["*"];
+//   [
+//   "https://hotel-booking-eight-ashen.vercel.app",
+//   "https://quickstay-im3lzyyul-victor-johnsons-projects.vercel.app",
+//   "http://localhost:5173",
+//   "https://quickstay-p38ci7oj9-victor-johnsons-projects.vercel.app",
+//   "https://quickstay-mztcv7pb6-victor-johnsons-projects.vercel.app",
+// ];
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -50,7 +51,7 @@ app.use(
       "X-Requested-With",
       "Accept",
     ],
-  })
+  }),
 );
 
 app.options(/(.*)/, cors());
