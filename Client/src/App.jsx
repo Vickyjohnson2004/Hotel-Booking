@@ -22,15 +22,7 @@ import { Toaster } from "react-hot-toast";
 
 function App() {
   const location = useLocation();
-  const isAdminPath = location.pathname.startsWith("/admin"); // ✅ correct check
-
-  // TEMP BACKEND CONNECTION TEST
-  useEffect(() => {
-    api
-      .get("/api/health")
-      .then((res) => console.log("✅ Backend connected:", res.data))
-      .catch((err) => console.error("❌ Backend error:", err));
-  }, []);
+  const isAdminPath = location.pathname.startsWith("/admin");
 
   return (
     <>

@@ -23,15 +23,11 @@ export const AppProvider = ({ children }) => {
         return null;
       }
 
-      console.log("🔄 Restoring auth from token...");
-
       // Try to fetch current user with the stored token
       const res = await api.get("/api/auth/me");
-      console.log("✅ Auth restored successfully");
       setUser(res.data.user);
       return res.data.user;
     } catch (error) {
-      console.warn("⚠️ Token invalid or expired, clearing storage");
       localStorage.removeItem("authToken");
       setUser(null);
       setLoading(false);

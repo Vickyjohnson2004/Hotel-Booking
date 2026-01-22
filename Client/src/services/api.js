@@ -2,21 +2,16 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
-  withCredentials: true, // ✅ required for cookies
+  withCredentials: true,
 });
 
-// ✅ Request interceptor - Add Authorization header from localStorage
+// Request interceptor - Add Authorization header from localStorage
 api.interceptors.request.use(
   (config) => {
-    // Get token from localStorage
     const token = localStorage.getItem("authToken");
-
-    // Add Authorization header if token exists
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
-    console.log(`[API] ${config.method.toUpperCase()} ${config.url}`);
     return config;
   },
   (error) => {
@@ -25,17 +20,11 @@ api.interceptors.request.use(
   },
 );
 
-// ✅ Response interceptor for error handling
+// Response interceptor for error handling
 api.interceptors.response.use(
-  (response) => {
-    console.log(
-      `[API] Response ${response.status} from ${response.config.url}`,
-    );
-    return response;
-  },
+  (response) => response,
   (error) => {
     if (error.response) {
-      // Server responded with error status
       console.error(
         `[API] Error ${error.response.status}:`,
         error.response.data,
@@ -47,12 +36,9 @@ api.interceptors.response.use(
         window.location.href = "/login";
       }
     } else if (error.request) {
-      // Request made but no response received
       console.error("[API] No response from server:", error.message);
-      console.error("Backend URL:", import.meta.env.VITE_BACKEND_URL);
     } else {
-      // Error in request setup
-      console.error("[API] Error setting up request:", error.message);
+      console.error("[API] Error:", error.message);
     }
     return Promise.reject(error);
   },
