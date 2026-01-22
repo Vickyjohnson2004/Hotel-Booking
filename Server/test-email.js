@@ -2,7 +2,7 @@
 import { sendBookingConfirmation } from "./utils/email.js";
 
 const testBooking = {
-  userEmail: "okikevictorodinaka@gmail.com", // Your recipient email
+  userEmail: "test@example.com", // Your recipient email
   name: "Victor",
   hotelName: "Luxe Haven Resort",
   roomType: "Deluxe Ocean View",

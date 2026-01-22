@@ -64,18 +64,18 @@ Vercel uses:
 
 ```env
 NODE_ENV=production
-FRONTEND_URL=https://quickstay-8r5avvt5o-victor-johnsons-projects.vercel.app
-MONGODB_URL=mongodb+srv://VJohnson:dynoNXFhXdmr4Pui@cluster0.nnem2hl.mongodb.net/test?retryWrites=true&w=majority
+FRONTEND_URL=https://your-frontend-domain.vercel.app
+MONGODB_URL=your_mongodb_connection_string
 PORT=5000
 JWT_SECRET=your_jwt_secret_here
 JWT_EXPIRES_IN=7d
-SMTP_HOST=smtp-relay.brevo.com
+SMTP_HOST=your_smtp_host
 SMTP_PORT=587
-SMTP_USER=992cf7001@smtp-brevo.com
-SMTP_PASS=xsmtpsib-ebe27785ec3db1a67b15c884a7affca840ba5f0faae9c1aaf824f13a551e6795-bwvuGmGqakoNuh3Q
-MAIL_FROM="Hotel Booking" <okikevictorodinaka@gmail.com>
-CLOUDINARY_URL=cloudinary://293915947575549:wvfSWYs-vzMB3l2TYA4EJHFrG_A@duylj6m9o
-GOOGLE_CLIENT_ID=819365736096-7mt6qh3o5osup5et2o5up0t52hgsffae.apps.googleusercontent.com
+SMTP_USER=your_smtp_user
+SMTP_PASS=your_smtp_password
+MAIL_FROM=your_email@example.com
+CLOUDINARY_URL=your_cloudinary_url
+GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
 ### **Server/.env.local** (Local Development)
@@ -83,23 +83,23 @@ GOOGLE_CLIENT_ID=819365736096-7mt6qh3o5osup5et2o5up0t52hgsffae.apps.googleuserco
 ```env
 NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
-MONGODB_URL=mongodb+srv://VJohnson:dynoNXFhXdmr4Pui@cluster0.nnem2hl.mongodb.net/test?retryWrites=true&w=majority
+MONGODB_URL=your_mongodb_connection_string
 PORT=5000
 JWT_SECRET=your_jwt_secret_here
 JWT_EXPIRES_IN=7d
-SMTP_HOST=smtp-relay.brevo.com
+SMTP_HOST=your_smtp_host
 SMTP_PORT=587
-SMTP_USER=992cf7001@smtp-brevo.com
-SMTP_PASS=xsmtpsib-ebe27785ec3db1a67b15c884a7affca840ba5f0faae9c1aaf824f13a551e6795-bwvuGmGqakoNuh3Q
-MAIL_FROM="Hotel Booking" <okikevictorodinaka@gmail.com>
-CLOUDINARY_URL=cloudinary://293915947575549:wvfSWYs-vzMB3l2TYA4EJHFrG_A@duylj6m9o
-GOOGLE_CLIENT_ID=819365736096-7mt6qh3o5osup5et2o5up0t52hgsffae.apps.googleusercontent.com
+SMTP_USER=your_smtp_user
+SMTP_PASS=your_smtp_password
+MAIL_FROM=your_email@example.com
+CLOUDINARY_URL=your_cloudinary_url
+GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
 ### **Client/.env** (Production)
 
 ```env
-VITE_BACKEND_URL=https://hotel-booking-backend-a6xdu2e0e-victor-johnsons-projects.vercel.app
+VITE_BACKEND_URL=https://your-backend-domain.vercel.app
 VITE_CURRENCY=$
 ```
 
@@ -113,7 +113,7 @@ VITE_CURRENCY=$
 ### **Client/.env.production** (Vercel Build)
 
 ```env
-VITE_BACKEND_URL=https://hotel-booking-backend-a6xdu2e0e-victor-johnsons-projects.vercel.app
+VITE_BACKEND_URL=https://your-backend-domain.vercel.app
 VITE_CURRENCY=$
 ```
 

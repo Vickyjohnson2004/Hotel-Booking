@@ -73,22 +73,22 @@ MongoDB Atlas
 
 ### **Production URLs** ✨
 
-- **Frontend:** https://quickstay-8r5avvt5o-victor-johnsons-projects.vercel.app
-- **Backend:** https://hotel-booking-backend-a6xdu2e0e-victor-johnsons-projects.vercel.app
+- **Frontend:** https://your-frontend-domain.vercel.app
+- **Backend:** https://your-backend-domain.vercel.app
 
 ### **Database** 🗄️
 
-- **MongoDB:** `mongodb+srv://VJohnson:dynoNXFhXdmr4Pui@cluster0.nnem2hl.mongodb.net/test`
+- **MongoDB:** `your_mongodb_connection_string`
 
 ### **Email Service** 📧
 
 - **Provider:** Brevo (SMTP)
-- **From:** `okikevictorodinaka@gmail.com`
+- **From:** `your_email@example.com`
 
 ### **Media Storage** 🖼️
 
 - **Provider:** Cloudinary
-- **Account:** duylj6m9o (active)
+- **Account:** your_cloudinary_account
 
 ### **Authentication** 🔐
 
