@@ -98,7 +98,35 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// ================= ERROR HANDLING =================
+// ================= DATABASE DIAGNOSTIC ENDPOINT =================
+app.get("/api/health/db", (req, res) => {
+  const mongoose = require("mongoose");
+  const connectionState = mongoose.connection.readyState;
+
+  // Connection states: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+  const states = {
+    0: "❌ Disconnected",
+    1: "✅ Connected",
+    2: "🔄 Connecting",
+    3: "⏳ Disconnecting",
+  };
+
+  res.status(connectionState === 1 ? 200 : 503).json({
+    database: "MongoDB",
+    status: states[connectionState],
+    readyState: connectionState,
+    mongoDBURL: process.env.MONGODB_URL ? "✅ Set" : "❌ Not Set",
+    environment: process.env.NODE_ENV,
+    timestamp: new Date().toISOString(),
+    details: {
+      host: process.env.MONGODB_URL
+        ? process.env.MONGODB_URL.split("@")[1]?.split("/")[0]
+        : "Unknown",
+      connectionStatus:
+        connectionState === 1 ? "Ready for queries" : "Not ready",
+    },
+  });
+});
 app.all(/(.*)/, (req, res) => {
   console.warn(`404 - Route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({

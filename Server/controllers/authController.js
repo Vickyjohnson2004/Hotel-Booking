@@ -29,6 +29,7 @@ const sendToken = async (user, statusCode, res) => {
 
   res.status(statusCode).json({
     status: "success",
+    token: token, // ✅ Send token in response for localStorage
     user: userObj,
   });
 };
@@ -87,7 +88,7 @@ export const getMe = async (req, res) => {
 
     // Attach the user's hotel (if any) so the client can check ownership
     const hotel = await Hotel.findOne({ owner: req.user._id }).select(
-      "_id name"
+      "_id name",
     );
 
     const userObj = req.user.toObject();

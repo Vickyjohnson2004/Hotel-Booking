@@ -2,12 +2,20 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
-  withCredentials: true, // ✅ required for cookies (auth)
+  withCredentials: true, // ✅ required for cookies
 });
 
-// ✅ Request interceptor for debugging
+// ✅ Request interceptor - Add Authorization header from localStorage
 api.interceptors.request.use(
   (config) => {
+    // Get token from localStorage
+    const token = localStorage.getItem("authToken");
+
+    // Add Authorization header if token exists
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     console.log(`[API] ${config.method.toUpperCase()} ${config.url}`);
     return config;
   },
@@ -32,6 +40,12 @@ api.interceptors.response.use(
         `[API] Error ${error.response.status}:`,
         error.response.data,
       );
+
+      // If 401 Unauthorized, clear token and redirect to login
+      if (error.response.status === 401) {
+        localStorage.removeItem("authToken");
+        window.location.href = "/login";
+      }
     } else if (error.request) {
       // Request made but no response received
       console.error("[API] No response from server:", error.message);
