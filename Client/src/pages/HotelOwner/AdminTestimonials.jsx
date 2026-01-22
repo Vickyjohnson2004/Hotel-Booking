@@ -15,7 +15,7 @@ const AdminTestimonials = () => {
       const res = await api.get("/api/testimonials/all", {
         withCredentials: true,
       });
-      setTestimonials(res.data.testimonials || []);
+      setTestimonials(res.data.data || []);
     } catch (err) {
       console.error(err);
       toast.error("Failed to load testimonials (admin)");
@@ -30,7 +30,7 @@ const AdminTestimonials = () => {
 
   const del = async (id) => {
     const ok = window.confirm(
-      "Delete this testimonial? This action cannot be undone."
+      "Delete this testimonial? This action cannot be undone.",
     );
     if (!ok) return;
 
@@ -49,11 +49,11 @@ const AdminTestimonials = () => {
       await api.patch(
         `/api/testimonials/${id}/approve`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
       toast.success("Testimonial approved");
       setTestimonials((t) =>
-        t.map((item) => (item._id === id ? { ...item, approved: true } : item))
+        t.map((item) => (item._id === id ? { ...item, approved: true } : item)),
       );
     } catch (err) {
       console.error(err);

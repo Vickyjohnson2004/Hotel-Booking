@@ -41,8 +41,8 @@ const Dashboard = () => {
             const tRes = await api.get("/api/testimonials/all", {
               withCredentials: true,
             });
-            const pendingCount = (tRes.data.testimonials || []).filter(
-              (t) => !t.approved
+            const pendingCount = (tRes.data.data || []).filter(
+              (t) => !t.approved,
             ).length;
             data.pendingTestimonials = pendingCount;
           } catch (err) {

@@ -26,7 +26,7 @@ const Testimonia = () => {
       try {
         setLoading(true);
         const res = await api.get("/api/testimonials");
-        setTestimonials(res.data.testimonials || []);
+        setTestimonials(res.data.data || []); // ✅ Changed from testimonials to data
       } catch (err) {
         console.error(err);
         toast.error("Failed to load testimonials");
@@ -67,7 +67,7 @@ const Testimonia = () => {
 
       toast.success(
         res.data?.message ||
-          "Thanks! Your testimonial is submitted and pending approval."
+          "Thanks! Your testimonial is submitted and pending approval.",
       );
       setShowModal(false);
       setForm({
