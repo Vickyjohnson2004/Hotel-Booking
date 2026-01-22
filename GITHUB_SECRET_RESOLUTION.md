@@ -15,6 +15,7 @@ GitHub has provided you with a link to resolve this. Follow these steps:
 ### Step 1: Go to the Unblock Link
 
 Visit this link in your browser:
+
 ```
 https://github.com/Vickyjohnson2004/Hotel-Booking/security/secret-scanning/unblock-secret/38c8PIzP6HCszKX57QZGmz2u2T
 ```
@@ -39,6 +40,7 @@ git push origin main
 ## What This Does
 
 By clicking "Allow", you're telling GitHub:
+
 - "I know this secret is in the repo history"
 - "It's already been rotated/revoked in production"
 - "Allow this push to proceed"
@@ -50,6 +52,7 @@ GitHub will still flag the secret, but won't block the push.
 ## Security Note
 
 The secrets in your old commits have been replaced in the current code:
+
 - ✅ New commits have placeholder values only
 - ✅ Old email and passwords were already used for development
 - ✅ Production secrets are stored safely in Vercel environment variables
@@ -61,9 +64,11 @@ The secrets in your old commits have been replaced in the current code:
 Once the push goes through:
 
 1. **Verify on GitHub:**
+
    ```
    https://github.com/Vickyjohnson2004/Hotel-Booking
    ```
+
    You should see all your commits
 
 2. **Now you can deploy to Vercel:**
@@ -109,12 +114,14 @@ git clone --depth 1 https://github.com/Vickyjohnson2004/Hotel-Booking.git clean-
 ## What's the Status Now?
 
 ✅ **Current State:**
+
 - Code is clean (no secrets in current commits)
 - Old commits have exposed secrets (already rotated)
 - Push is blocked by GitHub Push Protection
 - Solution: Click "Allow" link above
 
 ✅ **After Resolution:**
+
 - Push will succeed
 - Code will be on GitHub
 - Ready to deploy to Vercel
@@ -130,8 +137,9 @@ git clone --depth 1 https://github.com/Vickyjohnson2004/Hotel-Booking.git clean-
 
 ---
 
-**Questions?** The allow link should resolve this in 2 minutes. 
+**Questions?** The allow link should resolve this in 2 minutes.
 
 If it doesn't work:
+
 - GitHub Support: https://github.com/support
 - Or reply if you need additional help!

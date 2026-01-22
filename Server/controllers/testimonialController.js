@@ -4,14 +4,24 @@ import { sendEmail } from "../utils/email.js";
 export const getTestimonials = async (req, res) => {
   try {
     // Only show approved testimonials to public
+    console.info("📝 Fetching testimonials from database...");
     const testimonials = await Testimonial.find({ approved: true })
       .sort("-createdAt")
       .limit(10);
-    res.json({ status: "success", results: testimonials.length, testimonials });
+    console.info(`✅ Found ${testimonials.length} approved testimonials`);
+    res.json({
+      status: "success",
+      results: testimonials.length,
+      data: testimonials,
+    });
   } catch (error) {
-    console.error("GET /api/offers ERROR:", error); // log full error on Vercel
+    console.error(
+      "❌ GET /api/testimonials ERROR:",
+      error.message,
+      error.stack,
+    ); // log full error on Vercel
     res.status(500).json({
-      message: "Failed to fetch offers",
+      message: "Failed to fetch testimonials",
       error: error.message, // send actual error to frontend for debugging
     });
   }
@@ -44,7 +54,7 @@ export const createTestimonial = async (req, res) => {
           process.env.TESTIMONIAL_ADMIN_EMAIL || process.env.EMAIL_TEST_TO;
         if (!adminEmail)
           return console.info(
-            "No admin email configured for testimonial notifications"
+            "No admin email configured for testimonial notifications",
           );
 
         const frontend = (
@@ -54,8 +64,8 @@ export const createTestimonial = async (req, res) => {
 
         const html = `
           <p>New testimonial submitted by <strong>${t.name}</strong> (${
-          t.email || "no email"
-        })</p>
+            t.email || "no email"
+          })</p>
           <p>Rating: ${t.rating}</p>
           <p>Review: ${t.review}</p>
           <p><a href="${approveLink}">Open admin testimonials page</a> to approve or delete.</p>

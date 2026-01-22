@@ -6,18 +6,36 @@ const connectDB = async () => {
       throw new Error("MONGODB_URL is not defined in environment variables");
     }
 
-    // Connect to MongoDB
-    await mongoose.connect(process.env.MONGODB_URL);
+    console.log("🔄 Connecting to MongoDB...");
 
-    console.log("✅ MongoDB connected");
+    // Connect to MongoDB with timeout settings for Vercel
+    await mongoose.connect(process.env.MONGODB_URL, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+    });
+
+    console.log("✅ MongoDB connected successfully");
 
     // Optional: log disconnections
     mongoose.connection.on("disconnected", () => {
       console.warn("⚠️ MongoDB disconnected");
     });
+
+    mongoose.connection.on("reconnected", () => {
+      console.log("✅ MongoDB reconnected");
+    });
+
+    mongoose.connection.on("error", (err) => {
+      console.error("❌ MongoDB connection error:", err.message);
+    });
   } catch (error) {
     console.error("❌ MongoDB connection failed:", error.message);
-    process.exit(1); // Stop the server if DB fails
+    console.error("MONGODB_URL:", process.env.MONGODB_URL ? "Set" : "Not set");
+    // Don't exit on Vercel - let functions handle the error
+    if (process.env.VERCEL !== "1") {
+      process.exit(1); // Stop the server if DB fails locally
+    }
   }
 };
 
