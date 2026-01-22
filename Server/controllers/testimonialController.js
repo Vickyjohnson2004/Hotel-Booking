@@ -1,35 +1,25 @@
 import Testimonial from "../models/Testimonial.js";
 import { sendEmail } from "../utils/email.js";
+import mongoose from "mongoose";
 
 export const getTestimonials = async (req, res) => {
   try {
-    console.info("📝 Fetching testimonials from database...");
-    // Check if connection is ready
-    if (require("mongoose").connection.readyState !== 1) {
-      console.warn("⚠️ Database not connected, attempting to query...");
-    }
-
+    // Only show approved testimonials to public
     const testimonials = await Testimonial.find({ approved: true })
-      .maxTimeMS(30000) // 30 second timeout for the query
       .sort("-createdAt")
       .limit(10)
       .lean(); // Use lean for better performance on read-only queries
 
-    console.info(`✅ Found ${testimonials.length} approved testimonials`);
     res.json({
       status: "success",
       results: testimonials.length,
       data: testimonials,
     });
   } catch (error) {
-    console.error(
-      "❌ GET /api/testimonials ERROR:",
-      error.message,
-      error.stack,
-    ); // log full error on Vercel
+    console.error("❌ GET /api/testimonials ERROR:", error.message);
     res.status(500).json({
       message: "Failed to fetch testimonials",
-      error: error.message, // send actual error to frontend for debugging
+      error: error.message,
     });
   }
 };
