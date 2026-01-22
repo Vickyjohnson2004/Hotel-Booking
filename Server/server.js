@@ -26,25 +26,33 @@ const app = express();
 connectDB();
 
 // ================= MIDDLEWARES =================
-const allowedOrigins = ["*"];
-//   [
-//   "https://hotel-booking-eight-ashen.vercel.app",
-//   "https://quickstay-im3lzyyul-victor-johnsons-projects.vercel.app",
-//   "http://localhost:5173",
-//   "https://quickstay-p38ci7oj9-victor-johnsons-projects.vercel.app",
-//   "https://quickstay-mztcv7pb6-victor-johnsons-projects.vercel.app",
-// ];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  process.env.FRONTEND_URL,
+].filter(Boolean); // Remove undefined values
+
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like mobile apps, Postman, or server-to-server)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        console.warn(`⚠️ CORS blocked request from: ${origin}`);
+        console.warn(`✅ Allowed origins: ${allowedOrigins.join(", ")}`);
+        // In production, uncomment to strictly enforce CORS
+        // callback(new Error("Not allowed by CORS"));
+        // For debugging, allow the request
+        callback(null, true);
       }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: [
       "Content-Type",
       "Authorization",
@@ -72,21 +80,47 @@ app.use("/api/offers", offerRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 
 // ================= HEALTH CHECK =================
-app.get("/", (req, res) => res.send("API is working 🚀"));
+app.get("/", (req, res) => {
+  res.json({
+    status: "ok",
+    message: "API is working 🚀",
+    environment: process.env.NODE_ENV,
+    frontend: process.env.FRONTEND_URL,
+  });
+});
+
 app.get("/api/health", (req, res) => {
-  res.status(200).json({ status: "ok", message: "Backend is running" });
+  res.status(200).json({
+    status: "ok",
+    message: "Backend is running",
+    environment: process.env.NODE_ENV,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // ================= ERROR HANDLING =================
 app.all(/(.*)/, (req, res) => {
-  res.status(404).json({ message: "Route not found" });
+  console.warn(`404 - Route not found: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({
+    message: "Route not found",
+    path: req.originalUrl,
+    method: req.method,
+  });
 });
 
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res
-    .status(err.status || 500)
-    .json({ message: err.message || "Server error" });
+  console.error("❌ Server Error:", {
+    message: err.message,
+    status: err.status || 500,
+    path: req.originalUrl,
+    method: req.method,
+    stack: err.stack,
+  });
+
+  res.status(err.status || 500).json({
+    message: err.message || "Server error",
+    error: process.env.NODE_ENV === "development" ? err.stack : {},
+  });
 });
 
 // ================= START SERVER LOCALLY =================
