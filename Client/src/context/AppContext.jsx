@@ -26,6 +26,7 @@ export const AppProvider = ({ children }) => {
       // Try to fetch current user with the stored token
       const res = await api.get("/api/auth/me");
       setUser(res.data.user);
+      setLoading(false);
       return res.data.user;
     } catch (error) {
       localStorage.removeItem("authToken");
