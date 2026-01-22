@@ -3,11 +3,18 @@ import { sendEmail } from "../utils/email.js";
 
 export const getTestimonials = async (req, res) => {
   try {
-    // Only show approved testimonials to public
     console.info("📝 Fetching testimonials from database...");
+    // Check if connection is ready
+    if (require("mongoose").connection.readyState !== 1) {
+      console.warn("⚠️ Database not connected, attempting to query...");
+    }
+
     const testimonials = await Testimonial.find({ approved: true })
+      .maxTimeMS(30000) // 30 second timeout for the query
       .sort("-createdAt")
-      .limit(10);
+      .limit(10)
+      .lean(); // Use lean for better performance on read-only queries
+
     console.info(`✅ Found ${testimonials.length} approved testimonials`);
     res.json({
       status: "success",

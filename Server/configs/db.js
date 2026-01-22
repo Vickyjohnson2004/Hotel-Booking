@@ -8,11 +8,15 @@ const connectDB = async () => {
 
     console.log("🔄 Connecting to MongoDB...");
 
-    // Connect to MongoDB with timeout settings for Vercel
+    // Connect to MongoDB with extended timeout settings for Vercel cold starts
     await mongoose.connect(process.env.MONGODB_URL, {
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 10000,
-      connectTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 30000, // 30 seconds for Vercel cold start
+      socketTimeoutMS: 30000,
+      connectTimeoutMS: 30000,
+      maxPoolSize: 5,
+      minPoolSize: 1,
+      retryWrites: true,
+      w: "majority",
     });
 
     console.log("✅ MongoDB connected successfully");
